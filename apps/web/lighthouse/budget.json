@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/",
+    "resourceSizes": [
+      { "resourceType": "document", "budget": 35 },
+      { "resourceType": "script", "budget": 220 },
+      { "resourceType": "total", "budget": 300 }
+    ],
+    "resourceCounts": [{ "resourceType": "script", "budget": 20 }]
+  },
+  {
+    "path": "/app",
+    "resourceSizes": [
+      { "resourceType": "document", "budget": 35 },
+      { "resourceType": "script", "budget": 240 },
+      { "resourceType": "total", "budget": 340 }
+    ],
+    "resourceCounts": [{ "resourceType": "script", "budget": 24 }]
+  },
+  {
+    "path": "/catalog",
+    "resourceSizes": [
+      { "resourceType": "document", "budget": 35 },
+      { "resourceType": "script", "budget": 240 },
+      { "resourceType": "total", "budget": 340 }
+    ],
+    "resourceCounts": [{ "resourceType": "script", "budget": 24 }]
+  },
+  {
+    "path": "/session",
+    "resourceSizes": [
+      { "resourceType": "document", "budget": 35 },
+      { "resourceType": "script", "budget": 240 },
+      { "resourceType": "total", "budget": 340 }
+    ],
+    "resourceCounts": [{ "resourceType": "script", "budget": 24 }]
+  }
+]

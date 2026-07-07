@@ -1,0 +1,181 @@
+/**
+ * Conversational layer for the Coverage Lab coaching assistant.
+ *
+ * Built on the Vercel AI SDK (v5): `streamText` runs a multi-step tool-calling
+ * loop (stopWhen: stepCountIs) where each tool fetches the deterministic
+ * ProjectEdge analytics API. The LLM orchestrates + narrates; the tools stay
+ * deterministic and team-scoped (no DCI/DIS is ever invented by the model).
+ *
+ * The chat model is configurable via ANTHROPIC_CHAT_MODEL (we do NOT hardwire a
+ * model) and requires ANTHROPIC_API_KEY at runtime. With no key, use the
+ * deterministic POST /intelligence/query endpoint instead.
+ */
+
+import { anthropic } from "@ai-sdk/anthropic";
+import {
+  convertToModelMessages,
+  isStepCount,
+  streamText,
+  tool,
+  type UIMessage,
+} from "ai";
+import { z } from "zod";
+
+import { getApiBase } from "@/lib/api-client";
+
+// LLM responses with tool loops can take a while — give the stream room.
+export const maxDuration = 60;
+
+const CHAT_MODEL = process.env.ANTHROPIC_CHAT_MODEL ?? "claude-sonnet-4-6";
+
+const SYSTEM_PROMPT = `You are the coaching assistant for Coverage Lab, defensive-structure analytics for amateur and youth football staffs (peewee, high-school, D-III). Speak plainly to a coach with no film budget — never assume NFL-grade resources.
+
+Two metrics ground everything (from the team's tracking data):
+- DCI (Defensive Coverage Index): spatial tightness — how aggressively the defense constricts space vs. an ideal coverage archetype. High DCI = tight, aggressive coverage (good, but more boom-or-bust); low DCI = soft, loose coverage.
+- DIS (Defensive Integrity Score): structural stability — does the shell hold its shape and leverage, or break into seams. High DIS = disciplined execution; low DIS = chaos. DIS dropping below 0.25 is the empirical "point of no return" — after it, ~82% of plays yield explosive gains.
+
+Rules:
+- ALWAYS call a tool to ground any claim about plays or scores. Never invent a DCI/DIS number or a play id.
+- Cite specific plays by their deep_link (e.g. /plays/2023090700_1300) so the coach can open the film.
+- After calling openReplay for a play, tell the coach they can open the film at that play's deep_link.
+- Be concise and concrete. Lead with the answer, then the supporting plays. Use the plain-English score labels the tools return (e.g. "Coverage breakdown", "Collapse detected").`;
+
+const API_BASE = getApiBase();
+
+async function apiGet(path: string): Promise<unknown> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`backend ${res.status} on GET ${path}`);
+  return res.json();
+}
+
+async function apiPost(path: string, body?: unknown): Promise<unknown> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", Accept: "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`backend ${res.status} on POST ${path}`);
+  return res.json();
+}
+
+type ContextPlay = {
+  week: number;
+  opponent: string | null;
+  dci: number | null;
+  label: string;
+  deep_link: string;
+};
+type TeamContext = {
+  team_name: string;
+  season: number;
+  scored_play_count: number;
+  motion_play_count: number;
+  weeks_covered: number[];
+  season_avg_dci: number | null;
+  season_avg_dis: number | null;
+  season_dci_label: string;
+  season_dis_label: string;
+  weakest_play: ContextPlay | null;
+  tightest_play: ContextPlay | null;
+};
+
+// Deterministic grounding briefing — fetched server-side and injected into the
+// system prompt so the assistant knows its scope and never falsely says "I don't
+// know" about basics. Returns null if the backend is unreachable (chat still works).
+async function fetchTeamContext(): Promise<TeamContext | null> {
+  try {
+    return (await apiGet("/intelligence/context")) as TeamContext;
+  } catch {
+    return null;
+  }
+}
+
+function teamContextBlock(ctx: TeamContext): string {
+  const weeks = ctx.weeks_covered;
+  const span = weeks.length ? ` (weeks ${weeks[0]}–${weeks[weeks.length - 1]})` : "";
+  const play = (p: ContextPlay | null) =>
+    p
+      ? `Week ${p.week} vs ${p.opponent ?? "OPP"} — DCI ${p.dci?.toFixed(2)} (${p.label}) — ${p.deep_link}`
+      : "n/a";
+  return `
+
+CURRENT TEAM CONTEXT (ground every answer in this; do not claim ignorance about these basics):
+- Team: ${ctx.team_name} — ${ctx.season} season
+- Scored plays available: ${ctx.scored_play_count} across ${weeks.length} weeks${span}
+- Plays with per-frame film (forensics/replay): ${ctx.motion_play_count} of those — the rest have headline DCI/DIS only
+- Season averages: DCI ${ctx.season_avg_dci?.toFixed(2) ?? "—"} (${ctx.season_dci_label}), DIS ${ctx.season_avg_dis?.toFixed(2) ?? "—"} (${ctx.season_dis_label})
+- Weakest coverage so far: ${play(ctx.weakest_play)}
+- Tightest coverage so far: ${play(ctx.tightest_play)}
+If a coach asks about a week, player, or play not in this data, say what IS available and offer the closest analysis instead of refusing. Only ${ctx.motion_play_count} plays have per-frame film — if explainPlay returns no collapse window / zero peak stress, that play has no motion sample, so report only its headline DCI/DIS and do NOT describe a frame-by-frame breakdown.`;
+}
+
+export async function POST(req: Request): Promise<Response> {
+  const { messages }: { messages: UIMessage[] } = await req.json();
+  const modelMessages = await convertToModelMessages(messages);
+
+  const ctx = await fetchTeamContext();
+  const system = ctx ? SYSTEM_PROMPT + teamContextBlock(ctx) : SYSTEM_PROMPT;
+
+  const result = streamText({
+    model: anthropic(CHAT_MODEL),
+    system,
+    messages: modelMessages,
+    // Multi-step agentic loop: keep generating after tool results until the
+    // model has a final answer (or we hit the step ceiling). AI SDK v7:
+    // the stopping helper is `isStepCount` (renamed from v5's `stepCountIs`).
+    stopWhen: isStepCount(6),
+    tools: {
+      findPlays: tool({
+        description:
+          "Find this team's plays ranked by coverage scores. Use for 'worst/weakest coverage' (sort=dci_asc), 'tightest coverage' (sort=dci_desc), or 'most structural drift/chaos' (sort=dis_desc). Optionally filter by week. Returns plays with DCI/DIS, plain-English labels, and deep_links.",
+        inputSchema: z.object({
+          sort: z.enum(["dci_asc", "dci_desc", "dis_desc"]).optional(),
+          week: z.number().int().min(1).max(25).optional(),
+          limit: z.number().int().min(1).max(15).optional(),
+        }),
+        execute: async ({ sort, week, limit }) =>
+          apiPost("/intelligence/tools/find-plays", { sort, week, limit }),
+      }),
+
+      explainPlay: tool({
+        description:
+          "Get full coverage forensics for one play: DCI, DIS, nearest archetype, peak-stress frame/player, collapse window, and a plain-text breakdown. Use to answer 'why did this play break down'.",
+        inputSchema: z.object({
+          playId: z.string().describe("e.g. 2023090700_1300"),
+        }),
+        execute: async ({ playId }) =>
+          apiGet(`/plays/${encodeURIComponent(playId)}/forensics`),
+      }),
+
+      teamIntegrityTrend: tool({
+        description:
+          "Get the team's weekly average DCI/DIS for a season to judge whether the defense is improving, declining, or holding steady.",
+        inputSchema: z.object({
+          season: z.number().int().min(2000).max(2100).optional(),
+        }),
+        execute: async ({ season }) =>
+          apiGet(`/analytics/integrity?season=${season ?? 2023}`),
+      }),
+
+      openReplay: tool({
+        description:
+          "Mint a short-lived replay-session token so the coach can open the film for a specific play. Returns the token plus the play's deep_link.",
+        inputSchema: z.object({
+          playId: z.string().describe("e.g. 2023090700_1300"),
+        }),
+        execute: async ({ playId }) => {
+          const session = (await apiPost(
+            `/plays/${encodeURIComponent(playId)}/replay-session`,
+          )) as Record<string, unknown>;
+          return { ...session, deep_link: `/plays/${playId}` };
+        },
+      }),
+    },
+  });
+
+  return result.toUIMessageStreamResponse();
+}

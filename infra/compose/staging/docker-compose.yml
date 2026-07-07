@@ -1,0 +1,55 @@
+services:
+  caddy:
+    image: caddy:2.10.0-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      CADDY_DOMAIN: ${CADDY_DOMAIN:-staging.projectedge.local}
+      CADDY_EMAIL: ${CADDY_EMAIL:-platform@example.com}
+      ENABLE_REALTIME_INGRESS: ${ENABLE_REALTIME_INGRESS:-false}
+    volumes:
+      - ../staging/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - edge-public
+    profiles: ["staging"]
+
+  api:
+    restart: unless-stopped
+
+  web:
+    restart: unless-stopped
+
+  postgres:
+    restart: unless-stopped
+
+  minio:
+    restart: unless-stopped
+
+  mlflow:
+    restart: unless-stopped
+
+  otel-collector:
+    restart: unless-stopped
+
+  prometheus:
+    restart: unless-stopped
+
+  loki:
+    restart: unless-stopped
+
+  tempo:
+    restart: unless-stopped
+
+  grafana:
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

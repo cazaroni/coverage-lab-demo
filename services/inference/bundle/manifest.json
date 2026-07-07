@@ -1,0 +1,16 @@
+{
+  "model_version": "geom-fake-v1",
+  "payload_schema_version": "v1",
+  "feature_bundle_version": "geom-v1",
+  "runtime": {
+    "python": "3.11",
+    "scorer": "geometric-deterministic"
+  },
+  "archetype_count": 3,
+  "embedding_dim": 2,
+  "artifacts": {
+    "weights": "sha256:4ffd40b6b224d51df896899c4ba8ecf1f19612dcd4cadc41aa7f505bd1af0f70",
+    "centroids": "sha256:da418d1e96add587ace8a61e58a422a228ab144f3ce52d8fd9780dfa54fdf980",
+    "calibrator": "sha256:5d4fc2e89c283b6bdafbe244dbc6868ad9f3a7d8fdbe39055db6ebd4f0e3c42e"
+  }
+}

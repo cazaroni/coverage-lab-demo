@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "name": "canonical-v1-metadata-and-floats",
+      "description": "GraphPayload with a 3-key metadata map (unsorted insert order) + float x/y across 2 frames; locks ADR-0001 deterministic serialization + SHA-256.",
+      "payload_hash": "1b25a0cfb03fae369284bbe29a6600be87d329ec1d72d6d9664cc8c701c8dca1"
+    }
+  ]
+}

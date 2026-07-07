@@ -1,0 +1,443 @@
+{
+  "_meta": {
+    "source": "BigDataBowl 2023 development fixture — real names identified from play descriptions and 2023 NFL roster knowledge. Entries marked with display_name matching 'POS #ID' format are unconfirmed and should be replaced with verified displayName values from the original BDB players.csv.",
+    "season": 2023,
+    "generated_at": "2026-04-23"
+  },
+  "players": {
+    "34452": {
+      "display_name": "R. Wilson",
+      "position": "QB",
+      "jersey_number": 3,
+      "team_abbr": "DEN",
+      "confirmed": false
+    },
+    "37792": {
+      "display_name": "U. Nwosu",
+      "position": "OLB",
+      "jersey_number": 10,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "38577": {
+      "display_name": "C. Barton",
+      "position": "MLB",
+      "jersey_number": 57,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "38605": {
+      "display_name": "Matthew Stafford",
+      "position": "QB",
+      "jersey_number": 9,
+      "team_abbr": "LAR",
+      "confirmed": true
+    },
+    "41595": {
+      "display_name": "D. Nnadi",
+      "position": "NT",
+      "jersey_number": 91,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "42406": {
+      "display_name": "D. Taylor",
+      "position": "OLB",
+      "jersey_number": 52,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "42543": {
+      "display_name": "Q. Diggs",
+      "position": "FS",
+      "jersey_number": 6,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "43290": {
+      "display_name": "Jared Goff",
+      "position": "QB",
+      "jersey_number": 16,
+      "team_abbr": "DET",
+      "confirmed": true
+    },
+    "43314": {
+      "display_name": "T. Brown",
+      "position": "CB",
+      "jersey_number": 22,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "43338": {
+      "display_name": "B. Mone",
+      "position": "NT",
+      "jersey_number": 90,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "43399": {
+      "display_name": "T. Higbee",
+      "position": "TE",
+      "jersey_number": 89,
+      "team_abbr": "LAR",
+      "confirmed": false
+    },
+    "43413": {
+      "display_name": "N. Johnson",
+      "position": "SS",
+      "jersey_number": 35,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "44818": {
+      "display_name": "B. Irvin",
+      "position": "OLB",
+      "jersey_number": 15,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "44865": {
+      "display_name": "J. Love",
+      "position": "FS",
+      "jersey_number": 20,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "44930": {
+      "display_name": "Josh Reynolds",
+      "position": "WR",
+      "jersey_number": 8,
+      "team_abbr": "DET",
+      "confirmed": true
+    },
+    "46109": {
+      "display_name": "WR #46109",
+      "position": "WR",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "46117": {
+      "display_name": "L.J. Collier",
+      "position": "OLB",
+      "jersey_number": 91,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "46137": {
+      "display_name": "Justin Reid",
+      "position": "SS",
+      "jersey_number": 20,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "46144": {
+      "display_name": "Chris Jones",
+      "position": "DT",
+      "jersey_number": 95,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "47793": {
+      "display_name": "J. Brooks",
+      "position": "MLB",
+      "jersey_number": 1,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "47854": {
+      "display_name": "S. Harris",
+      "position": "OLB",
+      "jersey_number": 99,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "47882": {
+      "display_name": "J. Thornhill",
+      "position": "FS",
+      "jersey_number": 22,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "47891": {
+      "display_name": "R. Neal",
+      "position": "SS",
+      "jersey_number": 26,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "47913": {
+      "display_name": "W. Gay Jr.",
+      "position": "ILB",
+      "jersey_number": 50,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "47941": {
+      "display_name": "M. Jackson",
+      "position": "CB",
+      "jersey_number": 30,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "52423": {
+      "display_name": "WR #52423",
+      "position": "WR",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "52435": {
+      "display_name": "J. Brooks",
+      "position": "ILB",
+      "jersey_number": 1,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "52456": {
+      "display_name": "D. Jones",
+      "position": "DE",
+      "jersey_number": 93,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "52471": {
+      "display_name": "Nick Bolton",
+      "position": "ILB",
+      "jersey_number": 32,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "52546": {
+      "display_name": "L'Jarius Sneed",
+      "position": "CB",
+      "jersey_number": 38,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "52585": {
+      "display_name": "M. Danna",
+      "position": "DE",
+      "jersey_number": 51,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "52792": {
+      "display_name": "D. Nnadi",
+      "position": "DT",
+      "jersey_number": 91,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "53486": {
+      "display_name": "WR #53486",
+      "position": "WR",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "53487": {
+      "display_name": "D. Tranquill",
+      "position": "MLB",
+      "jersey_number": 23,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "53541": {
+      "display_name": "WR #53541",
+      "position": "WR",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "53566": {
+      "display_name": "S. Jones",
+      "position": "CB",
+      "jersey_number": 1,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "53887": {
+      "display_name": "G. Karlaftis",
+      "position": "DE",
+      "jersey_number": 56,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "53959": {
+      "display_name": "TE #53959",
+      "position": "TE",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "54014": {
+      "display_name": "T. Muse",
+      "position": "ILB",
+      "jersey_number": 49,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "54054": {
+      "display_name": "WR #54054",
+      "position": "WR",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "54486": {
+      "display_name": "Trent McDuffie",
+      "position": "CB",
+      "jersey_number": 22,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "54495": {
+      "display_name": "F. Anudike-Uzomah",
+      "position": "DE",
+      "jersey_number": 61,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "54505": {
+      "display_name": "B. Mafe",
+      "position": "OLB",
+      "jersey_number": 55,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "54527": {
+      "display_name": "C. Conner",
+      "position": "FS",
+      "jersey_number": 0,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "54568": {
+      "display_name": "L. Chenal",
+      "position": "OLB",
+      "jersey_number": 54,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "54574": {
+      "display_name": "J. Love",
+      "position": "FS",
+      "jersey_number": 20,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "54600": {
+      "display_name": "J. Williams",
+      "position": "CB",
+      "jersey_number": 23,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "54618": {
+      "display_name": "Riq Woolen",
+      "position": "CB",
+      "jersey_number": 27,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "54708": {
+      "display_name": "J. Watson",
+      "position": "CB",
+      "jersey_number": 35,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "54877": {
+      "display_name": "L. Chenal",
+      "position": "MLB",
+      "jersey_number": 54,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "55869": {
+      "display_name": "Devon Witherspoon",
+      "position": "CB",
+      "jersey_number": 6,
+      "team_abbr": "SEA",
+      "confirmed": true
+    },
+    "55895": {
+      "display_name": "B. Thompson",
+      "position": "DE",
+      "jersey_number": 57,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "55902": {
+      "display_name": "R. Gregory",
+      "position": "OLB",
+      "jersey_number": 55,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "55928": {
+      "display_name": "WR #55928",
+      "position": "WR",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "55984": {
+      "display_name": "Bryan Cook",
+      "position": "SS",
+      "jersey_number": 6,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "56042": {
+      "display_name": "WR #56042",
+      "position": "WR",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "56063": {
+      "display_name": "J. Love",
+      "position": "SS",
+      "jersey_number": 20,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "56115": {
+      "display_name": "J. Watson",
+      "position": "CB",
+      "jersey_number": 35,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "56265": {
+      "display_name": "J. Cochrane",
+      "position": "OLB",
+      "jersey_number": 47,
+      "team_abbr": "KC",
+      "confirmed": false
+    },
+    "56513": {
+      "display_name": "RB #56513",
+      "position": "RB",
+      "jersey_number": null,
+      "team_abbr": null,
+      "confirmed": false
+    },
+    "56644": {
+      "display_name": "D. Bush",
+      "position": "ILB",
+      "jersey_number": 0,
+      "team_abbr": "SEA",
+      "confirmed": false
+    },
+    "56668": {
+      "display_name": "E. Boye-Doe",
+      "position": "CB",
+      "jersey_number": 21,
+      "team_abbr": "KC",
+      "confirmed": false
+    }
+  }
+}

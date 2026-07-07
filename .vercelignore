@@ -1,0 +1,8 @@
+.turbo/
+node_modules/
+.next/
+coverage/
+design_handoff_team_and_player_view/
+*.zip
+.claude/
+.tmp/

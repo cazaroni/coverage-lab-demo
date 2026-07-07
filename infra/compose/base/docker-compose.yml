@@ -1,0 +1,364 @@
+name: projectedge
+
+x-platform-env: &platform_env
+  LOG_FORMAT: ${LOG_FORMAT:-json}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+  OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-grpc}
+  OTEL_RESOURCE_ATTRIBUTES: deployment.environment=${DEPLOYMENT_ENV:-dev}
+
+x-platform-logging: &platform_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-edge}
+      POSTGRES_USER: ${POSTGRES_USER:-edge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-edge_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-edge} -d ${POSTGRES_DB:-edge}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *platform_logging
+    networks:
+      - edge-internal
+
+  minio:
+    image: minio/minio:RELEASE.2026-03-13T11-33-38Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    expose:
+      - "9000"
+      - "9001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    logging: *platform_logging
+    networks:
+      - edge-internal
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.22.0
+    command:
+      - mlflow
+      - server
+      - --host=0.0.0.0
+      - --port=5000
+      - --backend-store-uri=postgresql://${POSTGRES_USER:-edge}:${POSTGRES_PASSWORD:-edge_dev_password}@postgres:5432/${POSTGRES_DB:-edge}
+      - --default-artifact-root=s3://${MLFLOW_BUCKET:-mlflow}
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      <<: *platform_env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 12
+    logging: *platform_logging
+    networks:
+      - edge-internal
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.125.0
+    command: ["--config=/etc/otelcol/otel-collector.yaml"]
+    volumes:
+      - ../../observability/otel/otel-collector.yaml:/etc/otelcol/otel-collector.yaml:ro
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
+    expose:
+      - "4317"
+      - "4318"
+      - "8889"
+      - "13133"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:13133/"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    logging: *platform_logging
+    networks:
+      - edge-observability
+      - edge-internal
+
+  prometheus:
+    image: prom/prometheus:v3.3.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ../../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    expose:
+      - "9090"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    logging: *platform_logging
+    networks:
+      - edge-observability
+      - edge-internal
+
+  loki:
+    image: grafana/loki:3.5.1
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ../../observability/loki/loki-config.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    expose:
+      - "3100"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    logging: *platform_logging
+    networks:
+      - edge-observability
+      - edge-internal
+
+  tempo:
+    image: grafana/tempo:2.8.1
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    volumes:
+      - ../../observability/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo_data:/var/tempo
+    expose:
+      - "3200"
+      - "4317"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3200/ready"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    logging: *platform_logging
+    networks:
+      - edge-observability
+      - edge-internal
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_DEFAULT_THEME: light
+      <<: *platform_env
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../../observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../../observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+      tempo:
+        condition: service_healthy
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    logging: *platform_logging
+    networks:
+      - edge-observability
+      - edge-public
+
+  api:
+    image: ${API_IMAGE:-ghcr.io/projectedge/api:dev}
+    environment:
+      PROJECTEDGE_SERVICE_NAME: api
+      PROJECTEDGE_ENVIRONMENT: ${DEPLOYMENT_ENV:-dev}
+      PROJECTEDGE_OTEL_SERVICE_NAME: api
+      PROJECTEDGE_OTEL_EXPORTER_OTLP_ENDPOINT: ${PROJECTEDGE_OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4318/v1/traces}
+      PROJECTEDGE_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-edge}:${POSTGRES_PASSWORD:-edge_dev_password}@postgres:5432/${POSTGRES_DB:-edge}
+      PROJECTEDGE_AUTH_MODE: ${PROJECTEDGE_AUTH_MODE:-development}
+      PROJECTEDGE_DEVELOPMENT_AUTO_AUTH: ${PROJECTEDGE_DEVELOPMENT_AUTO_AUTH:-true}
+      <<: *platform_env
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+      otel-collector:
+        condition: service_healthy
+    logging: *platform_logging
+    networks:
+      - edge-public
+      - edge-internal
+
+  web:
+    image: ${WEB_IMAGE:-ghcr.io/projectedge/web:dev}
+    environment:
+      SERVICE_NAME: web
+      OTEL_SERVICE_NAME: web
+      API_BASE_URL: ${API_BASE_URL:-http://api:8000}
+      <<: *platform_env
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      api:
+        condition: service_healthy
+    logging: *platform_logging
+    networks:
+      - edge-public
+      - edge-internal
+
+  inference:
+    image: ${INFERENCE_IMAGE:-ghcr.io/projectedge/inference:dev}
+    profiles: ["inference"]
+    environment:
+      INFERENCE_SERVICE_NAME: inference
+      INFERENCE_MODEL_VERSION: ${INFERENCE_MODEL_VERSION:-phase0-placeholder}
+      <<: *platform_env
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      mlflow:
+        condition: service_healthy
+      otel-collector:
+        condition: service_healthy
+    logging: *platform_logging
+    networks:
+      - edge-internal
+
+  realtime:
+    image: ${REALTIME_IMAGE:-ghcr.io/projectedge/realtime:dev}
+    profiles: ["realtime"]
+    environment:
+      SERVICE_NAME: realtime
+      OTEL_SERVICE_NAME: realtime
+      METRICS_PORT: ${REALTIME_METRICS_PORT:-9467}
+      <<: *platform_env
+    expose:
+      - "8090"
+      - "${REALTIME_METRICS_PORT:-9467}"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8090/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      api:
+        condition: service_healthy
+      otel-collector:
+        condition: service_healthy
+    logging: *platform_logging
+    networks:
+      - edge-public
+      - edge-internal
+
+  chatbot:
+    image: ${CHATBOT_IMAGE:-ghcr.io/projectedge/chatbot:dev}
+    profiles: ["chatbot"]
+    environment:
+      SERVICE_NAME: chatbot
+      OTEL_SERVICE_NAME: chatbot
+      METRICS_PORT: ${CHATBOT_METRICS_PORT:-9468}
+      <<: *platform_env
+    expose:
+      - "8092"
+      - "${CHATBOT_METRICS_PORT:-9468}"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8092/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      api:
+        condition: service_healthy
+      otel-collector:
+        condition: service_healthy
+    logging: *platform_logging
+    networks:
+      - edge-internal
+
+  orchestrator:
+    image: ${ORCHESTRATOR_IMAGE:-ghcr.io/projectedge/orchestrator:dev}
+    profiles: ["orchestrator"]
+    environment:
+      SERVICE_NAME: orchestrator
+      OTEL_SERVICE_NAME: orchestrator
+      METRICS_PORT: ${ORCHESTRATOR_METRICS_PORT:-9469}
+      <<: *platform_env
+    expose:
+      - "8093"
+      - "${ORCHESTRATOR_METRICS_PORT:-9469}"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8093/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_healthy
+    logging: *platform_logging
+    networks:
+      - edge-internal
+
+volumes:
+  postgres_data:
+  minio_data:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
+
+networks:
+  edge-public:
+    name: edge-public
+  edge-internal:
+    name: edge-internal
+    internal: true
+  edge-observability:
+    name: edge-observability
+    internal: true

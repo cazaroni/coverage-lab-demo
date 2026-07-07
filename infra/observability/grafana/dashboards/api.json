@@ -1,0 +1,30 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"content": "Stub dashboard for api. Add SLI, error budget, and latency panels in Phase 1+.", "mode": "markdown"},
+      "title": "api Dashboard Stub",
+      "type": "text"
+    }
+  ],
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["projectedge", "stub", "service:api"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "ProjectEdge / api",
+  "uid": "edge-api-stub",
+  "version": 1,
+  "weekStart": ""
+}
+

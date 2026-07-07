@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: projectedge-api
+    runtime: python
+    region: oregon
+    rootDir: .
+    plan: free
+    buildCommand: python -m pip install --upgrade pip && pip install -e packages/analytics && pip install -e services/api
+    startCommand: cd services/api && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: PROJECTEDGE_AUTH_MODE
+        value: development
+      - key: PROJECTEDGE_DEVELOPMENT_AUTO_AUTH
+        value: "true"
+      - key: PROJECTEDGE_ANALYTICS_BACKEND
+        value: bigdatabowl
+      # Render generates a random secret at deploy time; the realtime service
+      # copies this same value via fromService below. Never commit a real secret.
+      - key: PROJECTEDGE_REPLAY_SESSION_SECRET
+        generateValue: true
+
+  - type: web
+    name: projectedge-realtime
+    runtime: python
+    region: oregon
+    rootDir: .
+    plan: free
+    buildCommand: python -m pip install --upgrade pip && pip install -e packages/analytics && pip install -e services/realtime
+    startCommand: cd services/realtime && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: PROJECTEDGE_ANALYTICS_BACKEND
+        value: bigdatabowl
+      # Shares the API service's generated secret so both sign/verify with the
+      # same key, with no secret stored in the repo.
+      - key: PROJECTEDGE_REPLAY_SESSION_SECRET
+        fromService:
+          type: web
+          name: projectedge-api
+          envVarKey: PROJECTEDGE_REPLAY_SESSION_SECRET

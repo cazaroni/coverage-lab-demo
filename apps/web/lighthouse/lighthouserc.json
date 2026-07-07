@@ -1,0 +1,30 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 1,
+      "startServerCommand": "pnpm --filter @projectedge/web exec next start --hostname 127.0.0.1 --port 3000",
+      "startServerReadyPattern": "Ready",
+      "url": [
+        "http://127.0.0.1:3000/",
+        "http://127.0.0.1:3000/app",
+        "http://127.0.0.1:3000/catalog",
+        "http://127.0.0.1:3000/session"
+      ],
+      "settings": {
+        "preset": "desktop",
+        "chromeFlags": "--no-sandbox --disable-dev-shm-usage",
+        "extraHeaders": "{\"Cookie\":\"edge-e2e-auth=1\"}"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["warn", { "minScore": 0.7 }],
+        "categories:accessibility": ["warn", { "minScore": 0.9 }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

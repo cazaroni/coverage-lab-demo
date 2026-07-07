@@ -1,0 +1,21 @@
+{
+  "name": "projectedge",
+  "private": true,
+  "packageManager": "pnpm@10.3.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "node ./scripts/dev.mjs",
+    "dev:web": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "storybook": "pnpm --filter @projectedge/web storybook",
+    "build-storybook": "pnpm --filter @projectedge/web build-storybook",
+    "test:e2e": "pnpm --filter @projectedge/web test:e2e",
+    "perf:lighthouse": "pnpm --filter @projectedge/web perf:lighthouse"
+  },
+  "devDependencies": {
+    "turbo": "^2.9.6",
+    "typescript": "^5.9.3"
+  }
+}

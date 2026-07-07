@@ -1,0 +1,2 @@
+"""ProjectEdge inference service package."""
+

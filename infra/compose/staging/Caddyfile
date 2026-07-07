@@ -1,0 +1,29 @@
+{
+	email {$CADDY_EMAIL}
+}
+
+{$CADDY_DOMAIN} {
+	encode gzip zstd
+
+	@api path /api/* /healthz
+	handle @api {
+		reverse_proxy api:8080
+	}
+
+	@realtime path /realtime/*
+	handle @realtime {
+		# Realtime ingress stays opt-in until its phase gate opens.
+		@enabled expression `{env.ENABLE_REALTIME_INGRESS} == "true"`
+		handle @enabled {
+			reverse_proxy realtime:8090
+		}
+		handle {
+			respond "realtime ingress disabled" 404
+		}
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}
+

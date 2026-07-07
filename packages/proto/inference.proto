@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package projectedge.inference.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+service InferenceService {
+  rpc Score(ScoreRequest) returns (ScoreResponse);
+  rpc BatchScore(BatchScoreRequest) returns (BatchScoreResponse);
+}
+
+message RequestContext {
+  string team_id = 1;
+  string session_id = 2;
+  string trace_id = 3;
+  google.protobuf.Timestamp request_timestamp = 4;
+}
+
+message GraphPayload {
+  string payload_schema_version = 1;
+  repeated Frame features_by_frame = 2;
+  repeated Entity entities = 3;
+  map<string, string> metadata = 4;
+}
+
+message Frame {
+  uint32 frame_index = 1;
+  repeated EntityState entity_states = 2;
+}
+
+message Entity {
+  string entity_id = 1;
+  string role = 2;
+  bool is_offense = 3;
+}
+
+message EntityState {
+  string entity_id = 1;
+  float x = 2;
+  float y = 3;
+  float speed = 4;
+  float direction_degrees = 5;
+  bool is_present = 6;
+}
+
+message ScoreRequest {
+  RequestContext context = 1;
+  GraphPayload payload = 2;
+  optional string model_version = 3;
+  optional string idempotency_key = 4;
+}
+
+message BatchScoreRequest {
+  RequestContext context = 1;
+  repeated GraphPayload payloads = 2;
+  optional string model_version = 3;
+  optional string idempotency_key = 4;
+}
+
+message ScoreResponse {
+  string model_version = 1;
+  string payload_hash = 2;
+  ScorePlayResult result = 3;
+  TimingMetadata timing = 4;
+  repeated ScoreError errors = 5;
+}
+
+message BatchScoreResponse {
+  string model_version = 1;
+  repeated BatchScoreResult results = 2;
+  TimingMetadata timing = 3;
+  repeated ScoreError errors = 4;
+}
+
+message BatchScoreResult {
+  string payload_hash = 1;
+  ScorePlayResult result = 2;
+  repeated ScoreError errors = 3;
+}
+
+message ScorePlayResult {
+  float dci = 1;
+  float dis = 2;
+  repeated FrameScore frame_scores = 3;
+  repeated EntityStress stress = 4;
+  string score_status = 5;
+}
+
+message FrameScore {
+  uint32 frame_index = 1;
+  float dci = 2;
+  float dis = 3;
+}
+
+message EntityStress {
+  string entity_id = 1;
+  float stress = 2;
+}
+
+message EntityPosition {
+  uint32 nfl_id = 1;
+  string player_label = 2;
+  string player_position = 3;
+  string player_side = 4;
+  float x = 5;
+  float y = 6;
+  float s = 7;
+  float o = 8;
+  float dir = 9;
+  float node_stress = 10;
+  bool is_ball_carrier = 11;
+  optional float frame_dci = 12;
+  optional float frame_dis = 13;
+}
+
+message ReplayFrame {
+  uint32 frame_id = 1;
+  optional uint32 clip_index = 2;
+  optional bool is_bridge = 3;
+  repeated EntityPosition players = 4;
+}
+
+message TimingMetadata {
+  google.protobuf.Duration total_time = 1;
+  google.protobuf.Duration model_time = 2;
+}
+
+message ScoreError {
+  string code = 1;
+  string message = 2;
+}

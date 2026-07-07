@@ -1,0 +1,8 @@
+service: "projectedge_inference.service:svc"
+description: "ProjectEdge inference Phase 0 scaffold"
+labels:
+  owner: inference
+  phase: "0"
+include:
+  - "src/**"
+  - "README.md"

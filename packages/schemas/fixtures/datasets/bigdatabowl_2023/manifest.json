@@ -1,0 +1,360 @@
+{
+  "dataset": "projectedge-bigdatabowl-fixture",
+  "dataset_version": "bigdatabowl-2023-fixture-v1",
+  "model_version": "dci-dis-supervised-v1",
+  "season": 2023,
+  "generated_at": "2026-04-20T23:01:50Z",
+  "source": {
+    "supplementary_data_csv": "C:\\Users\\Usuario\\Documents\\bigdatabowl\\BigDatabowl\\supplementary_data.csv",
+    "metrics_playlevel_supervised_csv": "C:\\Users\\Usuario\\Documents\\bigdatabowl\\BigDatabowl\\metrics_playlevel_supervised.csv"
+  },
+  "team_contexts": [
+    {
+      "team_context_id": "00000000-0000-0000-0000-000000000001",
+      "team_abbr": "KC",
+      "team_name": "Kansas City Chiefs"
+    },
+    {
+      "team_context_id": "00000000-0000-0000-0000-000000000002",
+      "team_abbr": "SEA",
+      "team_name": "Seattle Seahawks"
+    }
+  ],
+  "counts": {
+    "games": 34,
+    "plays": 841,
+    "motion_samples": 30
+  },
+  "motion_samples": [
+    {
+      "play_id": "2023090700_101",
+      "game_id": "2023090700",
+      "source_play_id": 101,
+      "focus_team_abbr": "KC",
+      "title": "Chiefs Opener - Vertical Pressure",
+      "play_description": "(14:25) (Shotgun) J.Goff pass incomplete deep right to J.Reynolds.",
+      "path": "motion/2023090700_101.csv",
+      "frame_count": 26,
+      "player_count": 9
+    },
+    {
+      "play_id": "2023111910_3110",
+      "game_id": "2023111910",
+      "source_play_id": 3110,
+      "focus_team_abbr": "SEA",
+      "title": "Seahawks Discipline - Pressure Into Contact",
+      "play_description": "(14:44) (Shotgun) M.Stafford pass short right to A.Trammell to LA 29 for -3 yards (D.Witherspoon). PENALTY on SEA-D.Witherspoon, Unnecessary Roughness, 15 yards, enforced at LA 29.",
+      "path": "motion/2023111910_3110.csv",
+      "frame_count": 28,
+      "player_count": 12
+    },
+    {
+      "play_id": "2023101200_3324",
+      "game_id": "2023101200",
+      "source_play_id": 3324,
+      "focus_team_abbr": "KC",
+      "title": "Chiefs Explosive Breakdown - Sutton Shot",
+      "play_description": "(9:22) (Shotgun) R.Wilson pass deep left to C.Sutton ran ob at KC 40 for 21 yards [C.Jones].",
+      "path": "motion/2023101200_3324.csv",
+      "frame_count": 40,
+      "player_count": 12
+    },
+    {
+      "play_id": "2023112000_1727",
+      "game_id": "2023112000",
+      "source_play_id": 1727,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 11 (DCI 0.14)",
+      "play_description": "(1:04) (Shotgun) J.Hurts pass short left to K.Gainwell pushed ob at PHI 20 for 4 yards (D.Tranquill).",
+      "path": "motion/2023112000_1727.csv",
+      "frame_count": 42,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023121009_2926",
+      "game_id": "2023121009",
+      "source_play_id": 2926,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 14 (DCI 0.16)",
+      "play_description": "(3:24) (Shotgun) J.Allen pass short left to T.Johnson to BUF 29 for 3 yards (L.Sneed).",
+      "path": "motion/2023121009_2926.csv",
+      "frame_count": 31,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023110500_1370",
+      "game_id": "2023110500",
+      "source_play_id": 1370,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 9 (DCI 0.17)",
+      "play_description": "(11:41) (Shotgun) T.Tagovailoa pass short left to J.Wilson to MIA 44 for 10 yards (J.Reid) [G.Karlaftis].",
+      "path": "motion/2023110500_1370.csv",
+      "frame_count": 39,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023112608_3421",
+      "game_id": "2023112608",
+      "source_play_id": 3421,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 12 (DCI 0.19)",
+      "play_description": "(3:11) (Shotgun) A.O'Connell pass short right to H.Renfrow to LV 41 for 16 yards (B.Cook).",
+      "path": "motion/2023112608_3421.csv",
+      "frame_count": 26,
+      "player_count": 11
+    },
+    {
+      "play_id": "2024010709_4262",
+      "game_id": "2024010709",
+      "source_play_id": 4262,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 18 (DCI 0.19)",
+      "play_description": "(:31) (No Huddle, Shotgun) E.Stick pass short left to D.Davis pushed ob at LAC 33 for 18 yards (J.Cochrane). KC-D.Bush w",
+      "path": "motion/2024010709_4262.csv",
+      "frame_count": 45,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023123113_3933",
+      "game_id": "2023123113",
+      "source_play_id": 3933,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 17 (DCI 0.68)",
+      "play_description": "(1:14) (Shotgun) J.Browning pass incomplete deep right to T.Higgins (J.Williams).",
+      "path": "motion/2023123113_3933.csv",
+      "frame_count": 33,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023112608_245",
+      "game_id": "2023112608",
+      "source_play_id": 245,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 12 (DCI 0.46)",
+      "play_description": "(9:38) (Shotgun) A.O'Connell pass short middle to J.Meyers for 18 yards, TOUCHDOWN.",
+      "path": "motion/2023112608_245.csv",
+      "frame_count": 26,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023120310_2256",
+      "game_id": "2023120310",
+      "source_play_id": 2256,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 13 (DCI 0.44)",
+      "play_description": "(6:56) (Shotgun) J.Love pass deep middle to R.Doubs to KC 11 for 33 yards (J.Reid).",
+      "path": "motion/2023120310_2256.csv",
+      "frame_count": 23,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023100810_3401",
+      "game_id": "2023100810",
+      "source_play_id": 3401,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 5 (DCI 0.44)",
+      "play_description": "(12:55) (Shotgun) K.Cousins pass short left to J.Addison to KC 9 for 10 yards (Ja.Watson).",
+      "path": "motion/2023100810_3401.csv",
+      "frame_count": 31,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023102209_1400",
+      "game_id": "2023102209",
+      "source_play_id": 1400,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 7 (DCI 0.42)",
+      "play_description": "(7:48) (No Huddle, Shotgun) J.Herbert pass incomplete short left to K.Allen.",
+      "path": "motion/2023102209_1400.csv",
+      "frame_count": 30,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023121711_1150",
+      "game_id": "2023121711",
+      "source_play_id": 1150,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 15 (DCI 0.27)",
+      "play_description": "(11:04) B.Zappe pass short left to H.Henry to KC 42 for 6 yards (L.Chenal; M.Edwards). NE-C.Strange was injured during t",
+      "path": "motion/2023121711_1150.csv",
+      "frame_count": 39,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023123113_3066",
+      "game_id": "2023123113",
+      "source_play_id": 3066,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 17 (DCI 0.27)",
+      "play_description": "(13:32) (Shotgun) J.Browning pass incomplete deep left to T.Hudson.",
+      "path": "motion/2023123113_3066.csv",
+      "frame_count": 36,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023090700_1300",
+      "game_id": "2023090700",
+      "source_play_id": 1300,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 1 (DCI 0.27)",
+      "play_description": "(6:01) (Shotgun) J.Goff pass short left to J.Gibbs pushed ob at KC 17 for 10 yards (N.Bolton).",
+      "path": "motion/2023090700_1300.csv",
+      "frame_count": 31,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023121009_247",
+      "game_id": "2023121009",
+      "source_play_id": 247,
+      "focus_team_abbr": "KC",
+      "title": "KC \u2013 Week 14 (DCI 0.27)",
+      "play_description": "(11:30) J.Allen pass short right to J.Cook to KC 41 for 12 yards (M.Edwards).",
+      "path": "motion/2023121009_247.csv",
+      "frame_count": 33,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023092409_4034",
+      "game_id": "2023092409",
+      "source_play_id": 4034,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 3 (DCI 0.15)",
+      "play_description": "(10:24) (No Huddle, Shotgun) A.Dalton pass short right to C.Hubbard to CAR 45 for 1 yard (B.Wagner; J.Brooks).",
+      "path": "motion/2023092409_4034.csv",
+      "frame_count": 22,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023111210_676",
+      "game_id": "2023111210",
+      "source_play_id": 676,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 10 (DCI 0.16)",
+      "play_description": "(6:21) (Shotgun) S.Howell pass short right to A.Gibson to WAS 42 for 3 yards (J.Adams).",
+      "path": "motion/2023111210_676.csv",
+      "frame_count": 32,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023110502_2704",
+      "game_id": "2023110502",
+      "source_play_id": 2704,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 9 (DCI 0.16)",
+      "play_description": "(8:02) (Shotgun) L.Jackson pass short middle to M.Andrews pushed ob at SEA 38 for 16 yards (B.Wagner, J.Love).",
+      "path": "motion/2023110502_2704.csv",
+      "frame_count": 45,
+      "player_count": 11
+    },
+    {
+      "play_id": "2024010712_2281",
+      "game_id": "2024010712",
+      "source_play_id": 2281,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 18 (DCI 0.17)",
+      "play_description": "(11:25) K.Murray pass deep left to E.Higgins to SEA 29 for 25 yards (T.Woolen).",
+      "path": "motion/2024010712_2281.csv",
+      "frame_count": 41,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023122407_4283",
+      "game_id": "2023122407",
+      "source_play_id": 4283,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 16 (DCI 0.19)",
+      "play_description": "(:11) (No Huddle, Shotgun) R.Tannehill pass short left to C.Dowell to TEN 43 for 3 yards (T.Woolen). SEA-T.Woolen was in",
+      "path": "motion/2023122407_4283.csv",
+      "frame_count": 30,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023113000_1368",
+      "game_id": "2023113000",
+      "source_play_id": 1368,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 13 (DCI 0.50)",
+      "play_description": "(11:46) (Shotgun) D.Prescott pass incomplete short right to C.Lamb.",
+      "path": "motion/2023113000_1368.csv",
+      "frame_count": 24,
+      "player_count": 11
+    },
+    {
+      "play_id": "2024010712_3093",
+      "game_id": "2024010712",
+      "source_play_id": 3093,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 18 (DCI 0.49)",
+      "play_description": "(9:52) (No Huddle, Shotgun) K.Murray pass short middle to T.McBride for 8 yards, TOUCHDOWN.",
+      "path": "motion/2024010712_3093.csv",
+      "frame_count": 22,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023121801_1208",
+      "game_id": "2023121801",
+      "source_play_id": 1208,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 15 (DCI 0.46)",
+      "play_description": "(8:48) (Shotgun) J.Hurts pass short middle to J.Jones to SEA 12 for 6 yards (Q.Diggs).",
+      "path": "motion/2023121801_1208.csv",
+      "frame_count": 33,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023091012_439",
+      "game_id": "2023091012",
+      "source_play_id": 439,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 1 (DCI 0.44)",
+      "play_description": "(8:32) (Shotgun) M.Stafford pass short middle to T.Higbee to LA 38 for 7 yards (J.Brooks).",
+      "path": "motion/2023091012_439.csv",
+      "frame_count": 24,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023110502_3530",
+      "game_id": "2023110502",
+      "source_play_id": 3530,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 9 (DCI 0.44)",
+      "play_description": "(9:43) (Shotgun) T.Huntley pass short middle to I.Likely to SEA 6 for 12 yards (B.Wagner).",
+      "path": "motion/2023110502_3530.csv",
+      "frame_count": 33,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023110502_1237",
+      "game_id": "2023110502",
+      "source_play_id": 1237,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 9 (DCI 0.28)",
+      "play_description": "(11:20) (Shotgun) L.Jackson pass short right to M.Andrews to SEA 30 for 6 yards (T.Brown).",
+      "path": "motion/2023110502_1237.csv",
+      "frame_count": 33,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023101503_581",
+      "game_id": "2023101503",
+      "source_play_id": 581,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 6 (DCI 0.28)",
+      "play_description": "(6:12) (Shotgun) J.Burrow pass short middle to T.Boyd ran ob at SEA 33 for 9 yards (J.Brooks).",
+      "path": "motion/2023101503_581.csv",
+      "frame_count": 29,
+      "player_count": 11
+    },
+    {
+      "play_id": "2023092409_1502",
+      "game_id": "2023092409",
+      "source_play_id": 1502,
+      "focus_team_abbr": "SEA",
+      "title": "SEA \u2013 Week 3 (DCI 0.28)",
+      "play_description": "(8:39) (Shotgun) A.Dalton pass short left to J.Mingo to CAR 33 for 8 yards (M.Jackson).",
+      "path": "motion/2023092409_1502.csv",
+      "frame_count": 38,
+      "player_count": 11
+    }
+  ]
+}

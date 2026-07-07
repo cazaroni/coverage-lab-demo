@@ -1,0 +1,62 @@
+name: Frontend CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @projectedge/schemas typecheck
+      - run: pnpm --filter @projectedge/web lint
+      - run: pnpm --filter @projectedge/web typecheck
+      - run: pnpm --filter @projectedge/web build
+      - run: pnpm --filter @projectedge/web build-storybook
+
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter @projectedge/web test:e2e
+        env:
+          E2E_AUTH_BYPASS: "true"
+
+  lighthouse:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @projectedge/web build
+
+      - name: Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          budgetPath: apps/web/lighthouse/budget.json
+          configPath: apps/web/lighthouse/lighthouserc.json
+          uploadArtifacts: true
+        env:
+          E2E_AUTH_BYPASS: "true"

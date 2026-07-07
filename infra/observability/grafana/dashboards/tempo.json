@@ -1,0 +1,30 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {"type": "tempo", "uid": "tempo"},
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"content": "Stub dashboard for tempo.", "mode": "markdown"},
+      "title": "tempo Dashboard Stub",
+      "type": "text"
+    }
+  ],
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["projectedge", "stub", "service:tempo"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "ProjectEdge / tempo",
+  "uid": "edge-tempo-stub",
+  "version": 1,
+  "weekStart": ""
+}
+
