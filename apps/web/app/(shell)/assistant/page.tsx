@@ -100,8 +100,9 @@ export default function AssistantPage() {
 
         {error && (
           <div className="text-sm text-red-400">
-            Assistant unavailable. Set ANTHROPIC_API_KEY (and ANTHROPIC_CHAT_MODEL) for the chat
-            layer, or use the data views directly.
+            The assistant isn&rsquo;t responding &mdash; you may have reached the demo&rsquo;s
+            message limit, or the chat layer isn&rsquo;t configured. Explore the dashboards
+            and replay in the meantime.
           </div>
         )}
       </div>

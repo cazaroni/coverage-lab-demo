@@ -113,7 +113,49 @@ CURRENT TEAM CONTEXT (ground every answer in this; do not claim ignorance about 
 If a coach asks about a week, player, or play not in this data, say what IS available and offer the closest analysis instead of refusing. Only ${ctx.motion_play_count} plays have per-frame film — if explainPlay returns no collapse window / zero peak stress, that play has no motion sample, so report only its headline DCI/DIS and do NOT describe a frame-by-frame breakdown.`;
 }
 
+// ── Per-IP rate limit ─────────────────────────────────────────────────────────
+// Cap abuse of the (paid) LLM endpoint on the public demo: MAX_MESSAGES_PER_IP per
+// IP within WINDOW_MS. NOTE: this Map lives in the serverless instance's memory, so
+// on Vercel it is per-instance and resets on cold starts — best-effort, not a hard
+// guarantee. For a hard cap, back it with a shared store (Vercel KV / Upstash Redis).
+const MAX_MESSAGES_PER_IP = 5;
+const WINDOW_MS = 24 * 60 * 60 * 1000; // rolling 24h window
+const ipHits = new Map<string, number[]>();
+
+function clientIp(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for");
+  return xff?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
+}
+
+function overRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const recent = (ipHits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
+  if (recent.length >= MAX_MESSAGES_PER_IP) {
+    ipHits.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  ipHits.set(ip, recent);
+  return false;
+}
+
 export async function POST(req: Request): Promise<Response> {
+  const ip = clientIp(req);
+  if (overRateLimit(ip)) {
+    return new Response(
+      JSON.stringify({
+        error: `Demo limit reached — ${MAX_MESSAGES_PER_IP} assistant messages per visitor. Thanks for trying Coverage Lab! Explore the dashboards and replay in the meantime.`,
+      }),
+      {
+        status: 429,
+        headers: {
+          "content-type": "application/json",
+          "retry-after": String(Math.ceil(WINDOW_MS / 1000)),
+        },
+      },
+    );
+  }
+
   const { messages }: { messages: UIMessage[] } = await req.json();
   const modelMessages = await convertToModelMessages(messages);
 
