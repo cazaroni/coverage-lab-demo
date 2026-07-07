@@ -5,7 +5,7 @@ services:
     region: oregon
     rootDir: .
     plan: free
-    buildCommand: python -m pip install --upgrade pip && pip install -e packages/analytics && pip install -e services/api
+    buildCommand: python -m pip install --upgrade pip && python -m pip install -e packages/analytics && python -m pip install -e services/api
     startCommand: cd services/api && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /healthz
     autoDeployTrigger: commit
@@ -27,7 +27,7 @@ services:
     region: oregon
     rootDir: .
     plan: free
-    buildCommand: python -m pip install --upgrade pip && pip install -e packages/analytics && pip install -e services/realtime
+    buildCommand: python -m pip install --upgrade pip && python -m pip install -e packages/analytics && python -m pip install -e services/realtime
     startCommand: cd services/realtime && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /healthz
     autoDeployTrigger: commit
