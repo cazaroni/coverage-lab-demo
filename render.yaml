@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: projectedge-api
+    name: coverage-lab-api
     runtime: python
     region: oregon
     rootDir: .
@@ -22,7 +22,7 @@ services:
         generateValue: true
 
   - type: web
-    name: projectedge-realtime
+    name: coverage-lab-realtime
     runtime: python
     region: oregon
     rootDir: .
@@ -39,5 +39,5 @@ services:
       - key: PROJECTEDGE_REPLAY_SESSION_SECRET
         fromService:
           type: web
-          name: projectedge-api
+          name: coverage-lab-api
           envVarKey: PROJECTEDGE_REPLAY_SESSION_SECRET
