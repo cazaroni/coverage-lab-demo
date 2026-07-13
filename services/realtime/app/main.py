@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
@@ -11,11 +12,26 @@ from .token import ReplayTokenError, verify_replay_token
 
 logger = logging.getLogger(__name__)
 
+_DEV_REPLAY_SECRET = "dev-replay-secret-CHANGE-IN-PRODUCTION"
+
+
+def _refuse_dev_secret_in_production(secret: str, environment: str) -> None:
+    """Fail closed: this secret VERIFIES replay JWTs, and its dev default is
+    public in git — if the render.yaml fromService wiring ever fails to inject
+    the real value on a production host, silently booting would accept
+    attacker-forged tokens."""
+    if secret == _DEV_REPLAY_SECRET and (os.environ.get("RENDER") or environment == "production"):
+        raise RuntimeError(
+            "PROJECTEDGE_REPLAY_SESSION_SECRET is still the dev default on a production "
+            "host — refusing to start. Check the render.yaml fromService wiring."
+        )
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
     logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO))
+    _refuse_dev_secret_in_production(settings.replay_session_secret, settings.environment)
 
     from projectedge_analytics import BigDataBowlAnalyticsEngine
     engine = BigDataBowlAnalyticsEngine(dataset_dir=settings.analytics_fixture_dataset_dir)

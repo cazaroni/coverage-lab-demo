@@ -74,14 +74,18 @@ def test_motion_samples_cover_both_teams(fixture):
 
 
 def test_motion_samples_dci_variety(fixture):
-    """Motion samples should include both low-DCI and higher-DCI plays for timeline variety."""
-    from projectedge_analytics.bigdatabowl_fixture import load_bigdatabowl_fixture
+    """Motion samples should include collapse-grade, stressed, and stable plays for
+    timeline variety. Thresholds match the unified geometric scorer's distribution
+    (surface unification 2026-06-25): the fixture's 30 motion plays land at
+    3 collapse-grade (<0.30), a ~0.33 stressed cluster, and a ~0.57 stable cluster."""
     play_dci = {p.play_id: p.dci for p in fixture.plays}
     sample_dcis = [play_dci[s.play_id] for s in fixture.motion_samples if s.play_id in play_dci and play_dci[s.play_id] is not None]
     low = [d for d in sample_dcis if d < 0.3]
+    mid = [d for d in sample_dcis if 0.3 <= d < 0.4]
     high = [d for d in sample_dcis if d >= 0.4]
-    assert len(low) >= 5, f"need ≥5 low-DCI samples for collapse timeline, got {len(low)}"
-    assert len(high) >= 5, f"need ≥5 higher-DCI samples for stable timeline, got {len(high)}"
+    assert len(low) >= 3, f"need ≥3 collapse-grade samples for the collapse timeline, got {len(low)}"
+    assert len(mid) >= 5, f"need ≥5 stressed samples, got {len(mid)}"
+    assert len(high) >= 5, f"need ≥5 stable samples for the stable timeline, got {len(high)}"
 
 
 def test_motion_frames_load_for_all_samples(fixture):

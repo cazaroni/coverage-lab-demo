@@ -19,6 +19,7 @@ import {
   tool,
   type UIMessage,
 } from "ai";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getApiBase } from "@/lib/api-client";
@@ -113,15 +114,24 @@ CURRENT TEAM CONTEXT (ground every answer in this; do not claim ignorance about 
 If a coach asks about a week, player, or play not in this data, say what IS available and offer the closest analysis instead of refusing. Only ${ctx.motion_play_count} plays have per-frame film — if explainPlay returns no collapse window / zero peak stress, that play has no motion sample, so report only its headline DCI/DIS and do NOT describe a frame-by-frame breakdown.`;
 }
 
-// ── Per-IP rate limit ─────────────────────────────────────────────────────────
+// ── Public-exposure gate ─────────────────────────────────────────────────────
 // Cap abuse of the (paid) LLM endpoint on the public demo: MAX_MESSAGES_PER_IP per
-// IP within WINDOW_MS. NOTE: this Map lives in the serverless instance's memory, so
-// on Vercel it is per-instance and resets on cold starts — best-effort, not a hard
-// guarantee. For a hard cap, back it with a shared store (Vercel KV / Upstash Redis).
+// IP within WINDOW_MS, plus a kill switch and payload caps. NOTE: the Map lives in
+// the serverless instance's memory, so on Vercel it is per-instance and resets on
+// cold starts — best-effort, not a hard guarantee. For a hard cap, back it with a
+// shared store (Vercel KV / Upstash Redis).
+const CHAT_DISABLED = process.env.PROJECTEDGE_CHAT_DISABLED === "1";
 const MAX_MESSAGES_PER_IP = 5;
 const WINDOW_MS = 24 * 60 * 60 * 1000; // rolling 24h window
+const MAX_MESSAGES = 40;
+const MAX_TEXT_PART_CHARS = 4_000;
+const MAX_BODY_BYTES = 32_768;
+const MAX_TRACKED_CLIENTS = 5_000;
 const ipHits = new Map<string, number[]>();
 
+// x-forwarded-for is only trustworthy because Vercel overwrites it with the real
+// client IP; behind a proxy that merely appends, the first hop would be
+// attacker-controlled and the limiter needs a platform-verified header instead.
 function clientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
   return xff?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
@@ -130,34 +140,85 @@ function clientIp(req: Request): string {
 function overRateLimit(ip: string): boolean {
   const now = Date.now();
   const recent = (ipHits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
+  // delete-then-set keeps Map insertion order ≈ recency, so the size cap below
+  // evicts the coldest visitor instead of a hot (possibly over-quota) one.
+  ipHits.delete(ip);
   if (recent.length >= MAX_MESSAGES_PER_IP) {
     ipHits.set(ip, recent);
     return true;
   }
   recent.push(now);
   ipHits.set(ip, recent);
+  if (ipHits.size > MAX_TRACKED_CLIENTS) {
+    const coldest = ipHits.keys().next().value;
+    if (coldest !== undefined) ipHits.delete(coldest);
+  }
   return false;
 }
 
+function jsonError(status: number, error: string, headers?: Record<string, string>): Response {
+  return NextResponse.json({ error }, { status, headers });
+}
+
 export async function POST(req: Request): Promise<Response> {
+  if (CHAT_DISABLED) {
+    return jsonError(503, "The assistant is disabled on this deployment.");
+  }
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return jsonError(503, "The assistant is not configured on this deployment.");
+  }
   const ip = clientIp(req);
   if (overRateLimit(ip)) {
-    return new Response(
-      JSON.stringify({
-        error: `Demo limit reached — ${MAX_MESSAGES_PER_IP} assistant messages per visitor. Thanks for trying Coverage Lab! Explore the dashboards and replay in the meantime.`,
-      }),
-      {
-        status: 429,
-        headers: {
-          "content-type": "application/json",
-          "retry-after": String(Math.ceil(WINDOW_MS / 1000)),
-        },
-      },
+    return jsonError(
+      429,
+      `Demo limit reached — ${MAX_MESSAGES_PER_IP} assistant messages per visitor. Thanks for trying Coverage Lab! Explore the dashboards and replay in the meantime.`,
+      { "retry-after": String(Math.ceil(WINDOW_MS / 1000)) },
     );
   }
 
-  const { messages }: { messages: UIMessage[] } = await req.json();
-  const modelMessages = await convertToModelMessages(messages);
+  // The body is already fully buffered here (the platform enforces its own hard
+  // request-size ceiling before us); this cap bounds what we forward to the LLM.
+  const raw = await req.text();
+  if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) {
+    return jsonError(413, "Request body too large.");
+  }
+  let messages: UIMessage[];
+  try {
+    const parsed: { messages?: unknown } = JSON.parse(raw);
+    if (!Array.isArray(parsed.messages) || parsed.messages.length === 0) {
+      return jsonError(400, "Body must contain a non-empty messages array.");
+    }
+    messages = parsed.messages as UIMessage[];
+  } catch {
+    return jsonError(400, "Body must be JSON.");
+  }
+  if (messages.length > MAX_MESSAGES) {
+    return jsonError(413, "Conversation too long — start a new chat.");
+  }
+  for (const message of messages) {
+    if (typeof message !== "object" || message === null) {
+      return jsonError(400, "Malformed message.");
+    }
+    const parts = Array.isArray(message.parts) ? message.parts : [];
+    for (const part of parts) {
+      if (
+        part?.type === "text" &&
+        typeof part.text === "string" &&
+        part.text.length > MAX_TEXT_PART_CHARS
+      ) {
+        return jsonError(413, "Message too long.");
+      }
+    }
+  }
+
+  // convertToModelMessages is the real shape validator — surface its rejection
+  // of malformed UIMessage payloads as a 400 instead of an unhandled 500.
+  let modelMessages;
+  try {
+    modelMessages = await convertToModelMessages(messages);
+  } catch {
+    return jsonError(400, "Malformed messages payload.");
+  }
 
   const ctx = await fetchTeamContext();
   const system = ctx ? SYSTEM_PROMPT + teamContextBlock(ctx) : SYSTEM_PROMPT;

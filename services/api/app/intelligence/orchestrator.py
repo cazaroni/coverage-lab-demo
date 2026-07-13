@@ -20,7 +20,11 @@ _WEEK = re.compile(r"\bweek\s*(\d{1,2})\b", re.IGNORECASE)
 _LIMIT = re.compile(r"\btop\s*(\d{1,2})\b", re.IGNORECASE)
 
 _TREND_WORDS = ("trend", "improv", "declin", "over the season", "across the season", "getting better", "getting worse", "by week", "week over week")
-_DRIFT_WORDS = ("drift", "chaos", "unstable", "integrity", "collapse", "highest dis", "most dis")
+_DRIFT_WORDS = ("drift", "chao", "unstable", "integrity", "collapse")
+# "most/highest DIS" needs a word boundary — plain substrings would hijack
+# "most disciplined", "most disruptive", etc.
+_DIS_METRIC = re.compile(r"\b(?:most|highest)\s+dis\b", re.IGNORECASE)
+_TIGHT_WORDS = ("tightest", "tight coverage", "best coverage", "best plays", "strongest", "highest dci", "most aggressive")
 
 
 class DeterministicOrchestrator:
@@ -64,14 +68,22 @@ class DeterministicOrchestrator:
             )
 
         # 3. Most structural drift.
-        if any(w in lowered for w in _DRIFT_WORDS):
+        if any(w in lowered for w in _DRIFT_WORDS) or _DIS_METRIC.search(question):
             rows = self.tb.find_plays(week=week, sort="dis_desc", limit=limit)
             return self._find_report(
                 question, rows, descriptor="plays with the most structural drift",
                 title="Highest structural drift",
             )
 
-        # 4. Default: weakest coverage plays.
+        # 4. Tightest coverage (the team's best plays).
+        if any(w in lowered for w in _TIGHT_WORDS):
+            rows = self.tb.find_plays(week=week, sort="dci_desc", limit=limit)
+            return self._find_report(
+                question, rows, descriptor="plays with the tightest coverage",
+                title="Tightest coverage plays", leader_label="The standout",
+            )
+
+        # 5. Default: weakest coverage plays.
         rows = self.tb.find_plays(week=week, sort="dci_asc", limit=limit)
         return self._find_report(
             question, rows, descriptor="plays with the weakest coverage",
@@ -84,11 +96,15 @@ class DeterministicOrchestrator:
         match = pattern.search(text)
         return int(match.group(1)) if match else None
 
-    def _find_report(self, question: str, rows: list[PlayListRow], *, descriptor: str, title: str) -> ChatReport:
+    def _find_report(
+        self, question: str, rows: list[PlayListRow], *, descriptor: str, title: str,
+        leader_label: str = "The most exposed",
+    ) -> ChatReport:
         citations = [self._cite(r.play_id, r.dci, r.dis, week=r.week, opp=r.offense_team_id) for r in rows]
         return report.find_plays_report(
             question=question, rows=rows, citations=citations,
-            descriptor=descriptor, title=title, model_version=self.model_version,
+            descriptor=descriptor, title=title, leader_label=leader_label,
+            model_version=self.model_version,
         )
 
     def _cite(self, play_id: str, dci: float | None, dis: float | None, *, week: int | None = None, opp: str | None = None) -> Citation:

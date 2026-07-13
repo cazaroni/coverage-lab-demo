@@ -18,7 +18,7 @@ from projectedge_analytics import PlayForensics, TeamIntegrityPoint
 
 _FIND_SUMMARY = Template(
     "{{ n }} {{ descriptor }} for the season. "
-    "The most exposed, week {{ worst.week }} vs {{ worst.opp }}, graded {{ worst.phrase }}."
+    "{{ leader_label }}, week {{ worst.week }} vs {{ worst.opp }}, graded {{ worst.phrase }}."
 )
 
 _FIND_ROW = "{{ i }}. Week {{ p.week }} vs {{ p.opp }} — {{ p.phrase }}"
@@ -59,6 +59,7 @@ def find_plays_report(
     descriptor: str,
     title: str,
     model_version: str,
+    leader_label: str,
 ) -> ChatReport:
     if not rows:
         return ChatReport(
@@ -73,6 +74,7 @@ def find_plays_report(
     summary = _FIND_SUMMARY.render(
         n=len(rows),
         descriptor=descriptor,
+        leader_label=leader_label,
         worst={"week": worst.week, "opp": _opp(worst), "phrase": score_phrase(worst.dci, worst.dis)},
     )
     body = "\n".join(

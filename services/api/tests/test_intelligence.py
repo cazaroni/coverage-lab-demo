@@ -67,6 +67,14 @@ def test_explain_missing_play_is_graceful():
     assert report["sections"] == []
 
 
+def test_disciplined_prompt_is_not_misrouted_to_drift():
+    # "most disciplined" must not substring-match the "most DIS" metric intent —
+    # routing it to dis_desc would answer with the team's most CHAOTIC plays.
+    with TestClient(app) as client:
+        report = _ask(client, "Which plays were our most disciplined this season?")
+    assert report["title"] != "Highest structural drift"
+
+
 def test_tool_find_plays_endpoint_returns_labeled_rows():
     with TestClient(app) as client:
         r = client.post("/intelligence/tools/find-plays", json={"sort": "dci_asc", "limit": 3})
